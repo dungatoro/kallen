@@ -165,11 +165,14 @@ fn main() {
 
     let date = {
         if args.time.is_empty() {
-            Local::now();
+            let today = Local::now();
+            NaiveDate::from_ymd_opt(today.year(), today.month(), today.day()).unwrap()
         } else {
-            let year = args.time[0..1].parse::<u32>().unwrap();
-            let min = args.time[3..4].parse::<u32>().unwrap();
-            NaiveTime::from_ymd_opt(hour, min, 0)
+            // non robust 2023/02/08 format
+            let year = args.time[0..4].parse::<i32>().unwrap();
+            let month = args.time[5..6].parse::<u32>().unwrap();
+            let day = args.time[7..8].parse::<u32>().unwrap();
+            NaiveDate::from_ymd_opt(year, month, day).unwrap()
         }
     };
 
