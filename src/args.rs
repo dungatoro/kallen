@@ -12,7 +12,8 @@ pub enum Action {
     Add(NewEvent),
     Del(BadEvent),
     Update(UpdatedEvent),
-    Todays
+    Today,
+    ThisWeek,
 }
 
 #[derive(Debug, Args)]

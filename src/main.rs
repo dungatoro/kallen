@@ -1,8 +1,9 @@
+use chrono::{ NaiveDate, Local, Datelike, Duration };
 use std::fs::File;
 
 mod args;
 use args::{ KallenArgs, Action };
-use clap::Parser;
+use clap::Parser; 
 
 mod cal;
 use cal::{ Calendar, Event, parse_date, parse_time };
@@ -22,6 +23,8 @@ fn main() {
 
     if calendar.is_empty() {
         calendar = Vec::init();
+    } else {
+        calendar.align_left();
     }
 
     let args = KallenArgs::parse();
@@ -52,7 +55,22 @@ fn main() {
             calendar.update_event(date, new, event.idx);
         }
 
-        Action::Todays => {
+        Action::Today => {
+            let t = Local::now();
+            let today = NaiveDate::from_ymd_opt(t.year(), t.month(), t.day()).unwrap();
+
+            calendar.print_day(today);
+        }
+
+        Action::ThisWeek => {
+            let t = Local::now();
+            let mut date = NaiveDate::from_ymd_opt(t.year(), t.month(), t.day()).unwrap();
+
+            for _ in 0..7 {
+                calendar.print_day(date);
+                date += Duration::days(1);
+                println!();
+            }
         }
     }
 

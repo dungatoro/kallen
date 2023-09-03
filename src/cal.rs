@@ -1,5 +1,4 @@
-use chrono::prelude::*;
-use chrono::Duration;
+use chrono::{ NaiveDate, NaiveTime, Duration, Local, Datelike };
 use serde::{Serialize, Deserialize};
 
 use std::error::Error;
@@ -7,6 +6,8 @@ use std::io::Read;
 
 use std::fs::File;
 use std::io::Write;
+
+use colored::*;
 
 #[derive(Serialize, Deserialize)]
 pub struct Event {
@@ -40,6 +41,7 @@ impl Day {
 pub trait Calendar {
     fn init() -> Vec<Day>;
     fn align_left(&mut self); // keep usr in 1st yr of 2 yr calendar
+                              
     fn from_file(path: &str) -> Result<Self, Box<dyn Error>> where Self: Sized;
     fn write(&self, path: &str);
 
@@ -48,6 +50,8 @@ pub trait Calendar {
     fn add_event(&mut self, date: NaiveDate, new_event: Event);
     fn update_event(&mut self, date: NaiveDate, new_event: Event, idx: usize);
     fn del_event(&mut self, date: NaiveDate, idx: usize);
+
+    fn print_day(&self, date: NaiveDate);
 }
 
 impl Calendar for Vec<Day> {
@@ -72,14 +76,14 @@ impl Calendar for Vec<Day> {
 
         if self[0].date.year() < year {
             self.drain(0..365);
-        }
 
-        let mut date = NaiveDate::from_ymd_opt(year+1, 1, 1).unwrap(); 
-        let end = NaiveDate::from_ymd_opt(year+1, 12, 31).unwrap(); 
+            let mut date = NaiveDate::from_ymd_opt(year+1, 1, 1).unwrap(); 
+            let end = NaiveDate::from_ymd_opt(year+1, 12, 31).unwrap(); 
     
-        while date <= end {
-            self.push(Day { date, plan: Vec::new() } ); 
-            date += Duration::days(1); 
+            while date <= end {
+                self.push(Day { date, plan: Vec::new() } ); 
+                date += Duration::days(1); 
+            }
         }
     }
 
@@ -131,6 +135,26 @@ impl Calendar for Vec<Day> {
             }
         }
     }
+
+    fn print_day(&self, date: NaiveDate) {
+
+        let p = self.find_date(date).unwrap();
+        let plan = &self[p].plan;
+
+        if plan.is_empty() {
+            println!("Nothing on {}!", date.format("%d/%m").to_string().blue());
+        } else {
+            println!(" {} :", date.format("%d/%m").to_string().blue());
+            plan.iter()
+                .for_each(|event| {
+                    match event.time {
+                        None => print!("{}", " -- -- ".cyan()),
+                        Some(time) => print!(" {} ", time.format("%H:%M").to_string().green())
+                    }
+                    println!("{}", event.desc)
+                });
+        }
+    }
 }
 
 pub fn parse_date(date: String) -> NaiveDate {
@@ -138,7 +162,7 @@ pub fn parse_date(date: String) -> NaiveDate {
         let t = Local::now();
         NaiveDate::from_ymd_opt(t.year(), t.month(), t.day()).unwrap()
     } else {
-        NaiveDate::parse_from_str(date.as_str(), "%d/%m/%Y").expect("invalid time format: use hr:mn")
+        NaiveDate::parse_from_str(date.as_str(), "%d/%m/%Y").expect("invalid time format: use dy/mn/year")
     }
 }
 
