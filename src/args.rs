@@ -12,8 +12,14 @@ pub enum Action {
     Add(NewEvent),
     Del(BadEvent),
     Update(UpdatedEvent),
-    Today,
-    ThisWeek,
+    Day(DayOf),
+    Week(DayOf),
+}
+
+#[derive(Debug, Args)]
+pub struct DayOf {
+    #[arg(long, default_value_t = String::from(""))]
+    pub date: String,
 }
 
 #[derive(Debug, Args)]

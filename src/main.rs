@@ -55,20 +55,28 @@ fn main() {
             calendar.update_event(date, new, event.idx);
         }
 
-        Action::Today => {
-            let t = Local::now();
-            let today = NaiveDate::from_ymd_opt(t.year(), t.month(), t.day()).unwrap();
+        Action::Day(day_of) => {
+            let day = if day_of.date.is_empty() {
+                let t = Local::now();
+                NaiveDate::from_ymd_opt(t.year(), t.month(), t.day()).unwrap()
+            } else {
+                parse_date(day_of.date)
+            };
 
-            calendar.print_day(today);
+            calendar.print_day(day);
         }
 
-        Action::ThisWeek => {
-            let t = Local::now();
-            let mut date = NaiveDate::from_ymd_opt(t.year(), t.month(), t.day()).unwrap();
+        Action::Week(day_of) => {
+            let mut day = if day_of.date.is_empty() {
+                let t = Local::now();
+                NaiveDate::from_ymd_opt(t.year(), t.month(), t.day()).unwrap()
+            } else {
+                parse_date(day_of.date)
+            };
 
             for _ in 0..7 {
-                calendar.print_day(date);
-                date += Duration::days(1);
+                calendar.print_day(day);
+                day += Duration::days(1);
                 println!();
             }
         }

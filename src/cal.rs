@@ -146,10 +146,11 @@ impl Calendar for Vec<Day> {
         } else {
             println!(" {} :", date.format("%d/%m").to_string().blue());
             plan.iter()
-                .for_each(|event| {
+                .enumerate()
+                .for_each(|(idx, event)| {
                     match event.time {
-                        None => print!("{}", " -- -- ".cyan()),
-                        Some(time) => print!(" {} ", time.format("%H:%M").to_string().green())
+                        None => print!(" {} {}", idx.to_string().cyan(), " -- -- ".cyan()),
+                        Some(time) => print!(" {} {} ", idx.to_string().cyan(), time.format("%H:%M").to_string().green())
                     }
                     println!("{}", event.desc)
                 });
