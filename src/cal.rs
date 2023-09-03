@@ -149,7 +149,7 @@ impl Calendar for Vec<Day> {
                 .enumerate()
                 .for_each(|(idx, event)| {
                     match event.time {
-                        None => print!(" {} {}", idx.to_string().cyan(), " -- -- ".cyan()),
+                        None => print!(" {} {} ", idx.to_string().cyan(), "-- --".cyan()),
                         Some(time) => print!(" {} {} ", idx.to_string().cyan(), time.format("%H:%M").to_string().green())
                     }
                     println!("{}", event.desc)
